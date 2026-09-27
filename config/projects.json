@@ -1,0 +1,55 @@
+{
+  "project": {
+    "project_id": "BRIDGE_36",
+    "project_name": "Bridge Girder 36 & 36A",
+    "client": "Bharat Petroleum Corporation Limited",
+    "site_location": "Batalala, Jammu & Kashmir",
+    "structure_type": "Railway Bridge",
+    "test_type": "Static Load Test",
+    "report_head": "Bridge Girder Behavior Analysis through Load Test with Instrumentation",
+    "sensors": [
+      {
+        "sensor_id": "TEMP-01",
+        "type": "Temperature",
+        "location": "Span 36, Mid-span",
+        "unit": "\u00b0C",
+        "base": 27.0
+      },
+      {
+        "sensor_id": "TEMP-02",
+        "type": "Temperature",
+        "location": "Span 36A, Support A",
+        "unit": "\u00b0C",
+        "base": 26.4
+      },
+      {
+        "sensor_id": "DEF-01",
+        "type": "Deflection",
+        "location": "Span 36, Mid-span",
+        "unit": "mm",
+        "base": 0.0
+      },
+      {
+        "sensor_id": "DEF-02",
+        "type": "Deflection",
+        "location": "Span 36A, Mid-span",
+        "unit": "mm",
+        "base": 0.0
+      },
+      {
+        "sensor_id": "VIB-01",
+        "type": "Vibration",
+        "location": "Span 36, Mid-span",
+        "unit": "mm/s",
+        "base": 1.1
+      },
+      {
+        "sensor_id": "VIB-02",
+        "type": "Vibration",
+        "location": "Span 36A, Mid-span",
+        "unit": "mm/s",
+        "base": 1.0
+      }
+    ]
+  }
+}

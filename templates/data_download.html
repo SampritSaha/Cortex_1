@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% set active = "download" %}
+
+{% block content %}
+
+<div class="page-title">
+    <h1>Data Download</h1>
+
+    <p>
+        Capture sensor telemetry, filter by date & time,
+        and export to Excel.
+    </p>
+</div>
+
+
+<div class="live-panel">
+
+    <div class="live-header">
+
+        <div>
+            <span class="pulse"></span>
+            <b> Live Sensor Stream</b>
+        </div>
+
+        <div>
+            <span class="green-dot"></span>
+            Synthetic Connected
+            <span class="mono">
+                captured=live
+            </span>
+        </div>
+
+    </div>
+
+    <div class="live-body">
+
+        <div class="wave">〽</div>
+
+        <div>
+            Receiving one-second synthetic telemetry
+        </div>
+
+        <div class="live-time">
+            The same interface will later consume
+            actual Cortex sensor/MQTT data.
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="two-column">
+
+    <div class="card">
+
+        <h2>☁ Select Range (DD-MM-YYYY)</h2>
+
+        <form method="POST">
+
+            <div class="form-row">
+
+                <div class="field">
+                    <label>From</label>
+
+                    <input type="datetime-local"
+                           name="start">
+                </div>
+
+                <div class="field">
+                    <label>To</label>
+
+                    <input type="datetime-local"
+                           name="end">
+                </div>
+
+            </div>
+
+
+            <div class="filter-note">
+                No filter = exporting everything captured.
+            </div>
+
+
+            <h3>Select Sensors</h3>
+
+            <div class="sensor-check-grid">
+
+                {% for sensor in sensors %}
+
+                <label class="sensor-check">
+
+                    <input type="checkbox"
+                           name="sensor_ids"
+                           value="{{ sensor.sensor_id }}">
+
+                    <span>
+                        <b>{{ sensor.sensor_id }}</b>
+                        <small>
+                            {{ sensor.type }}
+                            · {{ sensor.location }}
+                            · {{ sensor.unit }}
+                        </small>
+                    </span>
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% if error %}
+
+            <div class="error-box">
+                {{ error }}
+            </div>
+
+            {% endif %}
+
+
+            <div class="capture-row">
+
+                <span>
+                    captured
+                    <b>43,206 × 6</b>
+                </span>
+
+                <span>
+                    sampling
+                    <b>1 second</b>
+                </span>
+
+                <span>
+                    sensors
+                    <b>6</b>
+                </span>
+
+            </div>
+
+
+            <button class="primary-button"
+                    type="submit">
+                ▣ Generate Excel
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>▣ Download as Excel</h2>
+
+        <p class="card-description">
+            Generates an .xlsx workbook with project information,
+            sensor mapping, complete one-second telemetry and
+            individual sensor sheets.
+        </p>
+
+
+        <div class="excel-preview">
+
+            <div class="filename">
+                SHM-Sensor-Data_YYYY-MM-DD_HH-MM-SS.xlsx
+            </div>
+
+            <div>
+                Project Information · Sensor Mapping ·
+                All Sensor Data · Sensor-wise sheets · Charts
+            </div>
+
+        </div>
+
+
+        <div class="export-info">
+
+            <b>Historical dataset</b>
+
+            <span>
+                {{ data_start }} to {{ data_end }}
+            </span>
+
+            <span>
+                One reading per second per sensor.
+            </span>
+
+        </div>
+
+
+        <button class="secondary-button"
+                onclick="document.querySelector('.primary-button').click()">
+            ▣ Download selected data
+        </button>
+
+    </div>
+
+</div>
+
+{% endblock %}

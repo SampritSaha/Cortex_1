@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% set active = "reports" %}
+
+{% block content %}
+
+<div class="page-title">
+
+    <h1>Reports</h1>
+
+    <p>
+        Generate sensor reports for a selected project.
+    </p>
+
+</div>
+
+
+<div class="card report-config">
+
+    <h2>Report Configuration</h2>
+
+    <form method="POST"
+          action="/generate-report">
+
+        <div class="report-grid">
+
+            <div class="field">
+
+                <label>Project</label>
+
+                <select name="project"
+                        required>
+
+                    <option value="{{ project.project_id }}">
+                        {{ project.project_name }}
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Offset</label>
+
+                <input type="number"
+                       name="offset"
+                       value="0">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Frequency</label>
+
+                <select name="frequency">
+
+                    <option>1 Second</option>
+                    <option>1 Minute</option>
+                    <option>1 Hour</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Start Date</label>
+
+                <input type="date"
+                       name="start_date"
+                       value="{{ data_start }}">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>End Date</label>
+
+                <input type="date"
+                       name="end_date"
+                       value="{{ data_end }}">
+
+            </div>
+
+
+            <button class="primary-button report-button"
+                    type="submit">
+
+                Generate
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- LIVE CHART AREA -->
+
+<div class="charts-header">
+
+    <div>
+
+        <h2>Live Sensor Monitoring</h2>
+
+        <p>
+            One-second telemetry stream from every mapped sensor.
+        </p>
+
+    </div>
+
+    <div class="live-badge">
+        <span class="green-dot"></span>
+        LIVE
+    </div>
+
+</div>
+
+
+<div class="sensor-dashboard">
+
+    {% for sensor in sensors %}
+
+    <div class="chart-card">
+
+        <div class="chart-card-header">
+
+            <div>
+
+                <b>
+                    {{ sensor.sensor_id }}
+                </b>
+
+                <span>
+                    {{ sensor.type }}
+                </span>
+
+            </div>
+
+            <div class="sensor-value"
+                 id="value-{{ sensor.sensor_id }}">
+                --
+            </div>
+
+        </div>
+
+
+        <div class="sensor-location">
+
+            {{ sensor.location }}
+
+            <span>
+                {{ sensor.unit }}
+            </span>
+
+        </div>
+
+
+        <div class="stock-chart">
+
+            <canvas id="chart-{{ sensor.sensor_id }}"></canvas>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+<div class="report-output-note">
+
+    <b>Report engine</b>
+
+    <span>
+        The Generate button creates the Word report from the
+        historical one-second sensor dataset.
+    </span>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+const sensors = {{ sensors | tojson }};
+
+const charts = {};
+const histories = {};
+
+function createChart(sensor) {
+
+    const canvas =
+        document.getElementById(
+            "chart-" + sensor.sensor_id
+        );
+
+    const ctx = canvas.getContext("2d");
+
+    histories[sensor.sensor_id] = {
+        labels: [],
+        values: []
+    };
+
+
+    charts[sensor.sensor_id] =
+        new Chart(ctx, {
+
+            type: "line",
+
+            data: {
+
+                labels:
+                    histories[sensor.sensor_id].labels,
+
+                datasets: [{
+
+                    data:
+                        histories[sensor.sensor_id].values,
+
+                    borderColor: "#4d2b68",
+
+                    backgroundColor:
+                        "rgba(77,43,104,0.06)",
+
+                    borderWidth: 2,
+
+                    fill: true,
+
+                    tension: 0.18,
+
+                    pointRadius: 0,
+
+                    pointHoverRadius: 4
+
+                }]
+
+            },
+
+
+            options: {
+
+                animation: false,
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+
+                    intersect: false,
+
+                    mode: "index"
+
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+                            maxTicksLimit: 6,
+                            color: "#9a91a4"
+                        }
+
+                    },
+
+                    y: {
+
+                        grid: {
+                            color: "#eeeaf1"
+                        },
+
+                        ticks: {
+                            color: "#81788a"
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+sensors.forEach(createChart);
+
+
+async function updateLiveCharts() {
+
+    try {
+
+        const response =
+            await fetch("/api/live");
+
+        const result =
+            await response.json();
+
+
+        result.readings.forEach(reading => {
+
+            const history =
+                histories[reading.sensor_id];
+
+            const chart =
+                charts[reading.sensor_id];
+
+
+            history.labels.push(
+                reading.timestamp
+            );
+
+            history.values.push(
+                reading.value
+            );
+
+
+            // Stock-market style rolling window:
+            // last 60 seconds only.
+
+            if (history.labels.length > 60) {
+
+                history.labels.shift();
+                history.values.shift();
+
+            }
+
+
+            chart.update("none");
+
+
+            const valueElement =
+                document.getElementById(
+                    "value-" + reading.sensor_id
+                );
+
+            if (valueElement) {
+
+                valueElement.textContent =
+                    Number(reading.value).toFixed(4)
+                    + " "
+                    + reading.unit;
+
+            }
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Live telemetry error:",
+            error
+        );
+
+    }
+
+}
+
+
+updateLiveCharts();
+
+setInterval(
+    updateLiveCharts,
+    1000
+);
+
+</script>
+
+{% endblock %}

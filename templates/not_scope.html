@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% set active = "" %}
+
+{% block content %}
+
+<div class="page-title">
+    <h1>{{ message }}</h1>
+</div>
+
+<div class="not-scope-box">
+    <div class="not-scope-icon">○</div>
+    <h2>Not In Scope</h2>
+    <p>
+        This module is outside the current development scope.
+    </p>
+</div>
+
+{% endblock %}

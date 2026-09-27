@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHM Console</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="logo-area">
+            <div class="logo-mark">C</div>
+
+            <div>
+                <div class="company-name">
+                    Cloudgence SensingLab Pvt Ltd
+                </div>
+
+                <div class="console-title">
+                    SHM Console
+                </div>
+
+                <div class="console-subtitle">
+                    Structural monitoring
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-section-title">
+            Monitoring
+        </div>
+
+        <a class="nav-item {% if active == 'devices' %}disabled-active{% endif %}"
+           href="/devices">
+            <span>◈</span> Devices
+        </a>
+
+        <a class="nav-item"
+           href="/sensors">
+            <span>⌁</span> Sensors
+        </a>
+
+        <a class="nav-item"
+           href="/mqtt">
+            <span>〽</span> MQTT Feed
+        </a>
+
+        <div class="nav-section-title">
+            Workspace
+        </div>
+
+        <a class="nav-item" href="/projects">
+            <span>♧</span> Projects
+        </a>
+
+        <a class="nav-item" href="/structures">
+            <span>▥</span> Structures
+        </a>
+
+        <a class="nav-item {% if active == 'reports' %}active{% endif %}"
+           href="/reports">
+            <span>▥</span> Reports
+        </a>
+
+        <a class="nav-item {% if active == 'download' %}active{% endif %}"
+           href="/data-download">
+            <span>♧</span> Data Download
+        </a>
+
+        <div class="nav-section-title">
+            Administration
+        </div>
+
+        <a class="nav-item" href="/users">
+            <span>♙</span> Users
+        </a>
+
+        <a class="nav-item" href="/audit-log">
+            <span>◉</span> Audit Log
+        </a>
+
+        <a class="nav-item" href="/settings">
+            <span>⚙</span> Settings
+        </a>
+
+        <div class="sidebar-bottom">
+            <span class="avatar">A</span>
+            <span>Admin</span>
+        </div>
+
+    </aside>
+
+
+    <section class="main">
+
+        <header class="topbar">
+
+            <div class="breadcrumb">
+                <span class="hamburger">☰</span>
+                <b>SHM</b>
+                <span>›</span>
+                <span>
+                    {% if active == "reports" %}
+                        Reports
+                    {% elif active == "download" %}
+                        Data Download
+                    {% else %}
+                        Console
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="top-status">
+                <span class="green-dot"></span>
+                <span id="clock">00:21:34Z</span>
+            </div>
+
+            <div class="admin-box">
+                <div class="avatar">A</div>
+                <div>
+                    <b>Admin</b>
+                    <small>ID: 2</small>
+                </div>
+            </div>
+
+        </header>
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+
+    </section>
+
+</div>
+
+<script>
+function updateClock() {
+    const now = new Date();
+    const text = now.toLocaleTimeString('en-GB', {hour12:false});
+    const el = document.getElementById("clock");
+    if (el) el.textContent = text + "Z";
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>
